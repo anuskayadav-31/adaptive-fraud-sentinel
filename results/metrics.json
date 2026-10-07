@@ -1,0 +1,120 @@
+{
+  "dataset_rows": 284807,
+  "fraud_count": 492,
+  "fraud_rate": 0.001727485630620034,
+  "split": {
+    "train_rows": 159491,
+    "val_rows": 39873,
+    "test_rows": 85443,
+    "method": "time-ordered 56/14/30; threshold tuned on validation only"
+  },
+  "imbalance": {
+    "method": "XGBoost scale_pos_weight = n_legit / n_fraud on the training window",
+    "scale_pos_weight": 447.0084269662921,
+    "n_train_fraud": 356,
+    "n_train_legit": 159135,
+    "not_used": "naive random oversampling / SMOTE"
+  },
+  "supervised_xgboost": {
+    "validation": {
+      "pr_auc": 0.6387594699753202,
+      "roc_auc": 0.9784132262517253,
+      "prevalence": 0.000702229578913049,
+      "pr_auc_no_skill": 0.000702229578913049
+    },
+    "test": {
+      "pr_auc": 0.78280142794446,
+      "roc_auc": 0.9754079238903755,
+      "prevalence": 0.0012640005617780275,
+      "pr_auc_no_skill": 0.0012640005617780275
+    }
+  },
+  "isolation_forest": {
+    "note": "Trained on legitimate train rows only. Scores are inverted decision_function ranks, not calibrated probabilities.",
+    "validation": {
+      "pr_auc": 0.013696432081579796,
+      "roc_auc": 0.9618593478299841,
+      "prevalence": 0.000702229578913049,
+      "pr_auc_no_skill": 0.000702229578913049
+    },
+    "test": {
+      "pr_auc": 0.031869758202002205,
+      "roc_auc": 0.9424997124622132,
+      "prevalence": 0.0012640005617780275,
+      "pr_auc_no_skill": 0.0012640005617780275
+    }
+  },
+  "why_pr_auc": "ROC-AUC can stay high when the negative class dominates because true-negative rate is easy to keep high. PR-AUC is the area under precision vs recall and is driven by the rare positive class; the no-skill baseline equals prevalence (~0.17%).",
+  "cost_policy": {
+    "fp_cost": 1.0,
+    "fn_cost": 8.0,
+    "justification": "FP is treated as one unit of customer friction (blocked legitimate payment). FN is treated as 8x that cost as a stand-in for chargeback/loss on missed fraud. This is an illustrative operations policy, not a bank loss table.",
+    "validation_operating_point": {
+      "threshold": 0.895,
+      "precision": 0.8076923076923077,
+      "recall": 0.75,
+      "f1": 0.7777777777777778,
+      "false_positives": 5,
+      "false_negatives": 7,
+      "true_positives": 21,
+      "true_negatives": 39840,
+      "estimated_cost": 61.0
+    },
+    "test_operating_point": {
+      "threshold": 0.895,
+      "precision": 0.872093023255814,
+      "recall": 0.6944444444444444,
+      "f1": 0.7731958762886598,
+      "false_positives": 11,
+      "false_negatives": 33,
+      "true_positives": 75,
+      "true_negatives": 85324,
+      "estimated_cost": 275.0,
+      "fp_cost": 1.0,
+      "fn_cost": 8.0
+    }
+  },
+  "drift": {
+    "natural_feature_shift": {
+      "n_features": 31,
+      "n_drifted": 27,
+      "drift_rate": 0.8709677419354839,
+      "mean_psi": 0.39257648314299187,
+      "retraining_alert": true,
+      "rule": "Alert if share of features with KS p<0.01 and KS>=0.05 is >=20%, or mean PSI>=0.25."
+    },
+    "simulated_feature_shift": {
+      "n_features": 31,
+      "n_drifted": 29,
+      "drift_rate": 0.9354838709677419,
+      "mean_psi": 0.42086171240163733,
+      "retraining_alert": true,
+      "rule": "Alert if share of features with KS p<0.01 and KS>=0.05 is >=20%, or mean PSI>=0.25."
+    },
+    "natural_score_shift": {
+      "ks_stat": 0.16715390462912932,
+      "p_value": 0.0,
+      "psi": 0.17910246941407817,
+      "drifted": true
+    },
+    "simulated_score_shift": {
+      "ks_stat": 0.19835612567480293,
+      "p_value": 0.0,
+      "psi": 0.2306744506724337,
+      "drifted": true
+    },
+    "natural_retraining_alert": true,
+    "simulated_retraining_alert": true
+  },
+  "artifacts": {
+    "metrics": "results/metrics.json",
+    "natural_drift_csv": "results/drift_report.csv",
+    "simulated_drift_csv": "results/simulated_drift_report.csv",
+    "figures": [
+      "results/figures/pr_curves.png",
+      "results/figures/threshold_cost.png",
+      "results/figures/drift_natural.png",
+      "results/figures/drift_simulated.png"
+    ]
+  }
+}
